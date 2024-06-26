@@ -1,63 +1,89 @@
-buildscript
-{
-    repositories
-    {
-        jcenter()
-        maven { url = "https://files.minecraftforge.net/maven" }
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        mavenCentral()
     }
-    dependencies
-    {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:5.1.+'
     }
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
+
+plugins {
+    id 'net.minecraftforge.gradle' version '5.1.+'
+}
 
 version = "1.0"
 group = "com.yourname.modid"
 archivesBaseName = "modid"
 
-sourceCompatibility = targetCompatibility = '1.8'
-compileJava
-{
-    sourceCompatibility = targetCompatibility = '1.8'
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
-minecraft
-{
-    version = "1.12.2-14.23.5.2795"
-    runDir = "run"
-    
-    mappings = "stable_39"
+minecraft {
+    mappings channel: 'official', version: '1.18.2'
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                modid {
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                modid {
+                    source sourceSets.main
+                }
+            }
+        }
+        data {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'debug'
+            args '--mod', 'modid', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            mods {
+                modid {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
 }
 
-repositories
-{
+repositories {
     mavenCentral()
-    maven
-    {
+    maven {
         url = "https://minecraft.curseforge.com/api/maven/"
     }
 }
 
-dependencies
-{
-    compile 'artemislib:ArtemisLib:1.12.2:v1.0.6'
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.18.2-40.1.0'
+    implementation 'artemislib:ArtemisLib:1.18.2:v1.0.6'  // 1.18.2対応のバージョンに更新
 }
 
-processResources
-{
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.release = 17
+}
 
-    from(sourceSets.main.resources.srcDirs)
-    {
-        include 'mcmod.info'
-                
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", "1.18.2"
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'pack.mcmeta'
+
+        expand 'version':project.version, 'mcversion':"1.18.2"
     }
-    
-    from(sourceSets.main.resources.srcDirs)
-    {
-        exclude 'mcmod.info'
+
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'pack.mcmeta'
     }
 }
