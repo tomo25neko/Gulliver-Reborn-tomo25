@@ -1,0 +1,5 @@
+{
+  "gulliverreborn.commands.mysize.usage": "/mysize <id>",
+  "gulliverreborn.commands.basesize.usage": "/basesize <player> <id>",
+  "death.attack.gulliverreborn.crushing": "%1$sは%2$sに押し潰された"
+}
