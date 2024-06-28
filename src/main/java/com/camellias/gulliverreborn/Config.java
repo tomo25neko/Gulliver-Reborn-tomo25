@@ -1,4 +1,4 @@
-package com.camellias.gulliverreborn;
+package com.tomo25neko.minihume;
 
 import java.io.File;
 
@@ -38,32 +38,30 @@ public class Config
 		
 		String category;
 		
-		category = "Gulliver Reborn Config Options";
+		category = "config.category.minihume";
 		config.addCustomCategoryComment(category, "");
 		
-		MAX_SIZE = config.getFloat("Set the maximum player size", category, Float.MAX_VALUE, 1F, Float.MAX_VALUE, "Max player size");
-		HEALTH_MULTIPLIER = config.getFloat("Set the health multiplier", category, 1.0F, Float.MIN_VALUE, Float.MAX_VALUE, "Health Multiplier");
-		
-		DO_ADJUSTED_RENDER = config.getBoolean("Player render is more normal at small sizes, but may cause problems with other mods", category, true, "Enable the re-scaled player render?");
-		PICKUP_SMALL_ENTITIES = config.getBoolean("Enable/disable the ability to pick up small entities", category, true, "Can players pick up smaller entities?");
-		RIDE_BIG_ENTITIES = config.getBoolean("Enable/disable the ability to ride large entities with String", category, true, "Can small players ride bigger entities with String?");
-		CLIMB_SOME_BLOCKS = config.getBoolean("Enable/disable the ability to climb some blocks (dirt, grass, leaves, etc)", category, true, "Are some blocks naturally climbable?");
-		CLIMB_WITH_SLIME = config.getBoolean("Enable/disable the ability to climb with Slimeballs or Slime Blocks", category, true, "Can small players climb with Slimeballs/Slime Blocks?");
-		GLIDE_WITH_PAPER = config.getBoolean("Enable/disable the ability to glide with paper", category, true, "Can small players glide with paper?");
-		HOT_BLOCKS_GIVE_LIFT = config.getBoolean("Enable/disable hot blocks giving gliding players lift (requires the ability to glide with paper to be enabled)", category, true, "Do hot blocks give lift?");
-		ROSES_HURT = config.getBoolean("Enable/disable rose/poppy thorns", category, true, "Do Rose Bushes/Poppies hurt small players?");
-		PLANTS_SLOW_SMALL_DOWN = config.getBoolean("Enable/disable plants slowing down small players", category, true, "Do small players get slowed by plants?");
-		SMALL_IS_INVISIBLE_TO_NONCATS_OR_NONSPIDERS = config.getBoolean("Enable/disable the ability for small players to be unnoticed by non-ocelots and non-spiders", category, true, "Are small players undetected by non-ocelots/non-spiders?");
-		GIANTS_CRUSH_ENTITIES = config.getBoolean("Enable/disable the ability for giants to crush small entities", category, true, "Can giants crush small entities?");
-		SCALED_FALL_DAMAGE = config.getBoolean("Enable/disable scaled fall damage", category, true, "Does fall damage scale with size?");
-		
-		SPEED_MODIFIER = config.getBoolean("Enable/disable the speed modifier", category, true, "Speed changes on resize");
-		REACH_MODIFIER = config.getBoolean("Enable/disable the reach modifier", category, true, "Reach distance changes on resize");
-		STRENGTH_MODIFIER = config.getBoolean("Enable/disable the strength modifier", category, true, "Strength changes on resize");
-		HEALTH_MODIFIER = config.getBoolean("Enable/disable the health modifier", category, true, "Health changes on resize");
-		HARVEST_MODIFIER = config.getBoolean("Enable/disable the harvest speed modifier", category, true, "Harvest speed is scaled with size");
-		JUMP_MODIFIER = config.getBoolean("Enable/disable the jump height modifier", category, true, "Jump height is scaled with size");
-		
+		MAX_SIZE = config.getFloat("config.minihume.max_size", category, Float.MAX_VALUE, 1F, Float.MAX_VALUE, config.getString("config.minihume.max_size.tooltip", category, "Max player size"));
+		HEALTH_MULTIPLIER = config.getFloat("config.minihume.health_multiplier", category, 1.0F, Float.MIN_VALUE, Float.MAX_VALUE, config.getString("config.minihume.health_multiplier.tooltip", category, "Health Multiplier"));
+		DO_ADJUSTED_RENDER = config.getBoolean("config.minihume.do_adjusted_render", category, true, config.getString("config.minihume.do_adjusted_render.tooltip", category, "Enable the re-scaled player render?"));
+		PICKUP_SMALL_ENTITIES = config.getBoolean("config.minihume.pickup_small_entities", category, true, config.getString("config.minihume.pickup_small_entities.tooltip", category, "Can players pick up smaller entities?"));
+		RIDE_BIG_ENTITIES = config.getBoolean("config.minihume.ride_big_entities", category, true, config.getString("config.minihume.ride_big_entities.tooltip", category, "Can small players ride bigger entities with String?"));
+		CLIMB_SOME_BLOCKS = config.getBoolean("config.minihume.climb_some_blocks", category, true, config.getString("config.minihume.climb_some_blocks.tooltip", category, "Are some blocks naturally climbable?"));
+		CLIMB_WITH_SLIME = config.getBoolean("config.minihume.climb_with_slime", category, true, config.getString("config.minihume.climb_with_slime.tooltip", category, "Can small players climb with Slimeballs/Slime Blocks?"));
+		GLIDE_WITH_PAPER = config.getBoolean("config.minihume.glide_with_paper", category, true, config.getString("config.minihume.glide_with_paper.tooltip", category, "Can small players glide with paper?"));
+		HOT_BLOCKS_GIVE_LIFT = config.getBoolean("config.minihume.hot_blocks_give_lift", category, true, config.getString("config.minihume.hot_blocks_give_lift.tooltip", category, "Do hot blocks give lift?"));
+		ROSES_HURT = config.getBoolean("config.minihume.roses_hurt", category, true, config.getString("config.minihume.roses_hurt.tooltip", category, "Do Rose Bushes/Poppies hurt small players?"));
+		PLANTS_SLOW_SMALL_DOWN = config.getBoolean("config.minihume.plants_slow_small_down", category, true, config.getString("config.minihume.plants_slow_small_down.tooltip", category, "Do small players get slowed by plants?"));
+		SMALL_IS_INVISIBLE_TO_NONCATS_OR_NONSPIDERS = config.getBoolean("config.minihume.small_is_invisible_to_noncats_or_nonspiders", category, true, config.getString("config.minihume.small_is_invisible_to_noncats_or_nonspiders.tooltip", category, "Are small players undetected by non-ocelots/non-spiders?"));
+		GIANTS_CRUSH_ENTITIES = config.getBoolean("config.minihume.giants_crush_entities", category, true, config.getString("config.minihume.giants_crush_entities.tooltip", category, "Can giants crush small entities?"));
+		SCALED_FALL_DAMAGE = config.getBoolean("config.minihume.scaled_fall_damage", category, true, config.getString("config.minihume.scaled_fall_damage.tooltip", category, "Does fall damage scale with size?"));
+		SPEED_MODIFIER = config.getBoolean("config.minihume.speed_modifier", category, true, config.getString("config.minihume.speed_modifier.tooltip", category, "Speed changes on resize"));
+		REACH_MODIFIER = config.getBoolean("config.minihume.reach_modifier", category, true, config.getString("config.minihume.reach_modifier.tooltip", category, "Reach distance changes on resize"));
+		STRENGTH_MODIFIER = config.getBoolean("config.minihume.strength_modifier", category, true, config.getString("config.minihume.strength_modifier.tooltip", category, "Strength changes on resize"));
+		HEALTH_MODIFIER = config.getBoolean("config.minihume.health_modifier", category, true, config.getString("config.minihume.health_modifier.tooltip", category, "Health changes on resize"));
+		HARVEST_MODIFIER = config.getBoolean("config.minihume.harvest_modifier", category, true, config.getString("config.minihume.harvest_modifier.tooltip", category, "Harvest speed is scaled with size"));
+		JUMP_MODIFIER = config.getBoolean("config.minihume.jump_modifier", category, true, config.getString("config.minihume.jump_modifier.tooltip", category, "Jump height is scaled with size"));
+
 		config.save();
 	}
 	
