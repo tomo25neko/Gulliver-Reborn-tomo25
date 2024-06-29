@@ -1,4 +1,4 @@
-package com.camellias.gulliverreborn;
+package com.tomo25neko.minihume;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockPane;

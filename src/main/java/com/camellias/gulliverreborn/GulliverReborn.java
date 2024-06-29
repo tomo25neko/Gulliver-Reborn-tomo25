@@ -1,59 +1,25 @@
-package com.camellias.gulliverreborn;
-
-import java.io.File;
-import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.lwjgl.opengl.GL11;
+package com.tomo25neko.minihume;
 
 import com.artemis.artemislib.compatibilities.sizeCap.ISizeCap;
 import com.artemis.artemislib.compatibilities.sizeCap.SizeCapPro;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockBush;
-import net.minecraft.block.BlockCarpet;
-import net.minecraft.block.BlockClay;
-import net.minecraft.block.BlockConcretePowder;
-import net.minecraft.block.BlockDirt;
-import net.minecraft.block.BlockDoublePlant;
-import net.minecraft.block.BlockFarmland;
-import net.minecraft.block.BlockFlower;
-import net.minecraft.block.BlockGrass;
-import net.minecraft.block.BlockGrassPath;
-import net.minecraft.block.BlockGravel;
-import net.minecraft.block.BlockLeaves;
-import net.minecraft.block.BlockMycelium;
-import net.minecraft.block.BlockRedFlower;
-import net.minecraft.block.BlockReed;
-import net.minecraft.block.BlockSand;
-import net.minecraft.block.BlockSnow;
-import net.minecraft.block.BlockSoulSand;
-import net.minecraft.block.BlockWeb;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.settings.GameSettings;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.monster.EntitySpider;
-import net.minecraft.entity.passive.EntityOcelot;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.init.MobEffects;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.potion.PotionEffect;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup;
 import net.minecraftforge.client.event.FOVUpdateEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
@@ -67,384 +33,265 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
+import net.minecraftforge.fml.util.thread.EffectiveSide;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-@Mod(
-modid = GulliverReborn.MODID,
-name = GulliverReborn.NAME,
-version = GulliverReborn.VERSION,
-acceptedMinecraftVersions = GulliverReborn.MCVERSION,
-dependencies = GulliverReborn.DEPENDENCIES)
-public class GulliverReborn
+@Mod(MiniHume.MODID)
+public class MiniHume
 {
-	public static final String MODID = "gulliverreborn";
-	public static final String NAME = "Gulliver Reborn";
-	public static final String VERSION = "1.10";
-	public static final String MCVERSION = "1.12.2";
-	public static final String DEPENDENCIES = "required-after:forge@[14.23.5.2795,];" + "required-after:artemislib@[1.0.6,];";
+	public static final String MODID = "minihume";
+	public static final String NAME = "Mini Hume";
+	public static final String VERSION = "1.0.0";
 	public static final Logger LOGGER = LogManager.getLogger(NAME);
 	public static File config;
-	
-	public static DamageSource causeCrushingDamage(EntityLivingBase entity)
+
+	public static DamageSource causeCrushingDamage(LivingEntity entity)
 	{
 		return new EntityDamageSource(MODID + ".crushing", entity);
 	}
-	
+
+	public MiniHume()
+	{
+		MinecraftForge.EVENT_BUS.register(this);
+	}
+
 	@EventHandler
-	public void preInit(FMLPreInitializationEvent event)
+	public void setup(final FMLCommonSetupEvent event)
 	{
 		Config.registerConfig(event);
 		MinecraftForge.EVENT_BUS.register(new GulliverReborn());
 	}
-	
+
 	@EventHandler
-	public void serverRegistries(FMLServerStartingEvent event)
+	public void serverRegistries(final FMLServerStartingEvent event)
 	{
-		event.registerServerCommand(new MyResizeCommand());
-		event.registerServerCommand(new OthersResizeCommand());
+		event.getServer().getCommandManager().registerCommand(new MyResizeCommand());
+		event.getServer().getCommandManager().registerCommand(new OthersResizeCommand());
 	}
-	
+
 	@SubscribeEvent
 	public void onPlayerFall(LivingFallEvent event)
 	{
-		if(event.getEntityLiving() instanceof EntityPlayer)
+		if (event.getEntityLiving() instanceof Player)
 		{
-			EntityPlayer player = (EntityPlayer) event.getEntityLiving();
-			
-			if(Config.SCALED_FALL_DAMAGE) event.setDistance(event.getDistance() / (player.height * 0.6F));
-			if(player.height < 0.45F) event.setDistance(0);
+			Player player = (Player) event.getEntityLiving();
+
+			if (Config.SCALED_FALL_DAMAGE) event.setDistance(event.getDistance() / (player.getBbHeight() * 0.6F));
+			if (player.getBbHeight() < 0.45F) event.setDistance(0);
 		}
 	}
-	
+
 	@SubscribeEvent
 	public void onLivingTick(LivingUpdateEvent event)
 	{
-		EntityLivingBase entity = event.getEntityLiving();
-		World world = event.getEntityLiving().world;
-		
-		for(EntityLivingBase entities : world.getEntitiesWithinAABB(EntityLivingBase.class, entity.getEntityBoundingBox()))
+		LivingEntity entity = event.getEntityLiving();
+		Level world = event.getEntityLiving().getCommandSenderWorld();
+
+		for (LivingEntity entities : world.getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox()))
 		{
-			if(!entity.isSneaking() && Config.GIANTS_CRUSH_ENTITIES)
+			if (!entity.isShiftKeyDown() && Config.GIANTS_CRUSH_ENTITIES)
 			{
-				if(entity.height / entities.height >= 4 && entities.getRidingEntity() != entity)
+				if (entity.getBbHeight() / entities.getBbHeight() >= 4 && entities.getVehicle() != entity)
 				{
-					entities.attackEntityFrom(causeCrushingDamage(entity), entity.height - entities.height);
+					entities.hurt(causeCrushingDamage(entity), entity.getBbHeight() - entities.getBbHeight());
 				}
 			}
 		}
 	}
-	
+
 	@SubscribeEvent
 	public void onTargetEntity(LivingSetAttackTargetEvent event)
 	{
-		if(event.getTarget() instanceof EntityPlayer && event.getEntityLiving() instanceof EntityLiving && Config.SMALL_IS_INVISIBLE_TO_NONCATS_OR_NONSPIDERS)
+		if (event.getTarget() instanceof Player && event.getEntityLiving() instanceof Mob && Config.SMALL_IS_INVISIBLE_TO_NONCATS_OR_NONSPIDERS)
 		{
-			EntityPlayer player = (EntityPlayer) event.getTarget();
-			EntityLiving entity = (EntityLiving) event.getEntityLiving();
-			
-			if(!(entity instanceof EntitySpider || entity instanceof EntityOcelot))
+			Player player = (Player) event.getTarget();
+			Mob entity = (Mob) event.getEntityLiving();
+
+			if (!(entity instanceof EntitySpider || entity instanceof EntityOcelot))
 			{
-				if(player.height <= 0.45F)
+				if (player.getBbHeight() <= 0.45F)
 				{
-					entity.setAttackTarget(null);
+					entity.setTarget(null);
 				}
 			}
 		}
 	}
-	
+
 	@SubscribeEvent
 	public void onPlayerTick(PlayerTickEvent event)
 	{
-		EntityPlayer player = event.player;
-		World world = event.player.world;
-		
-		player.stepHeight = player.height / 3F;
-		player.jumpMovementFactor *= (player.height / 1.8F);
-		
-		if(player.height < 0.9F)
+		Player player = event.player;
+		Level world = event.player.getCommandSenderWorld();
+
+		player.maxUpStep = player.getBbHeight() / 3F;
+		player.flyingSpeed *= (player.getBbHeight() / 1.8F);
+
+		if (player.getBbHeight() < 0.9F)
 		{
-			BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
-			IBlockState state = world.getBlockState(pos);
+			BlockPos pos = new BlockPos(player.getX(), player.getY(), player.getZ());
+			BlockState state = world.getBlockState(pos);
 			Block block = state.getBlock();
-			float ratio = (player.height / 1.8F) / 2;
-			
-			if(block instanceof BlockRedFlower
-				|| state == Blocks.DOUBLE_PLANT.getDefaultState().withProperty(BlockDoublePlant.VARIANT, BlockDoublePlant.EnumPlantType.ROSE)
-				&& Config.ROSES_HURT)
+			float ratio = (player.getBbHeight() / 1.8F) / 2;
+
+			if (block instanceof FlowerBlock
+					|| state.is(Blocks.TALL_FLOWER.defaultBlockState())
+					&& Config.ROSES_HURT)
 			{
-				player.attackEntityFrom(DamageSource.CACTUS, 1);
+				player.hurt(DamageSource.CACTUS, 1);
 			}
-			
-			if(!player.capabilities.isFlying
-				&& Config.PLANTS_SLOW_SMALL_DOWN
-				&& (block instanceof BlockBush)
-				|| (block instanceof BlockCarpet)
-				|| (block instanceof BlockFlower)
-				|| (block instanceof BlockReed)
-				|| (block instanceof BlockSnow)
-				|| (block instanceof BlockWeb)
-				|| (block instanceof BlockSoulSand))
+
+			if (!player.getAbilities().flying
+					&& Config.PLANTS_SLOW_SMALL_DOWN
+					&& (block instanceof BushBlock)
+					|| (block instanceof CarpetBlock)
+					|| (block instanceof FlowerBlock)
+					|| (block instanceof SugarCaneBlock)
+					|| (block instanceof SnowBlock)
+					|| (block instanceof CobwebBlock)
+					|| (block instanceof SoulSandBlock))
 			{
-				player.motionX *= ratio;
-				if(block instanceof BlockWeb) player.motionY *= ratio;
-				player.motionZ *= ratio;
+				player.setDeltaMovement(player.getDeltaMovement().multiply(ratio, ratio, ratio));
+				if (block instanceof CobwebBlock) player.setDeltaMovement(player.getDeltaMovement().multiply(ratio, 1.0D, ratio));
 			}
 		}
-		
-		if(player.height <= 0.45F)
+
+		if (player.getBbHeight() <= 0.45F)
 		{
-			EnumFacing facing = player.getHorizontalFacing();
-			BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
-			IBlockState state = world.getBlockState(pos.add(0, 0, 0).offset(facing));
+			Direction facing = player.getDirection();
+			BlockPos pos = new BlockPos(player.getX(), player.getY(), player.getZ());
+			BlockState state = world.getBlockState(pos.relative(facing));
 			Block block = state.getBlock();
-			boolean canPass = block.isPassable(world, pos.offset(facing));
-			
-			if(ClimbingHandler.canClimb(player, facing)
-				&& Config.CLIMB_SOME_BLOCKS
-				&& (block instanceof BlockDirt)
-				|| (block instanceof BlockGrass)
-				|| (block instanceof BlockMycelium)
-				|| (block instanceof BlockLeaves)
-				|| (block instanceof BlockSand)
-				|| (block instanceof BlockSoulSand)
-				|| (block instanceof BlockConcretePowder)
-				|| (block instanceof BlockFarmland)
-				|| (block instanceof BlockGrassPath)
-				|| (block instanceof BlockGravel)
-				|| (block instanceof BlockClay))
+			boolean canPass = block.isAir(state, world, pos.relative(facing));
+
+			if (ClimbingHandler.canClimb(player, facing)
+					&& Config.CLIMB_SOME_BLOCKS
+					&& (block instanceof DirtBlock)
+					|| (block instanceof GrassBlock)
+					|| (block instanceof MyceliumBlock)
+					|| (block instanceof LeavesBlock)
+					|| (block instanceof SandBlock)
+					|| (block instanceof SoulSandBlock)
+					|| (block instanceof ConcretePowderBlock)
+					|| (block instanceof FarmBlock)
+					|| (block instanceof GrassPathBlock)
+					|| (block instanceof GravelBlock)
+					|| (block instanceof ClayBlock))
 			{
-				if(player.collidedHorizontally)
+				if (player.horizontalCollision)
 				{
-					if(!player.isSneaking())
+					if (!player.isShiftKeyDown())
 					{
-						player.motionY = 0.1D;
+						player.setDeltaMovement(player.getDeltaMovement().add(0.0D, 0.1D, 0.0D));
 					}
-					
-					if(player.isSneaking())
+
+					if (player.isShiftKeyDown())
 					{
-						player.motionY = 0.0D;
+						player.setDeltaMovement(player.getDeltaMovement().multiply(1.0D, 0.0D, 1.0D));
 					}
 				}
 			}
-			
-			for(ItemStack stack : player.getHeldEquipment())
+
+			for (ItemStack stack : player.getHandSlots())
 			{
-				if(stack.getItem() == Items.SLIME_BALL || stack.getItem() == Item.getItemFromBlock(Blocks.SLIME_BLOCK) && Config.CLIMB_WITH_SLIME)
+				if (stack.getItem() == Items.SLIME_BALL || stack.getItem() == Item.byBlock(Blocks.SLIME_BLOCK) && Config.CLIMB_WITH_SLIME)
 				{
-					if(ClimbingHandler.canClimb(player, facing))
+					if (ClimbingHandler.canClimb(player, facing))
 					{
-						if(player.collidedHorizontally)
+						if (player.horizontalCollision)
 						{
-							if(!player.isSneaking())
+							if (!player.isShiftKeyDown())
 							{
-								player.motionY = 0.1D;
+								player.setDeltaMovement(player.getDeltaMovement().add(0.0D, 0.1D, 0.0D));
 							}
-							
-							if(player.isSneaking())
+
+							if (player.isShiftKeyDown())
 							{
-								player.motionY = 0.0D;
+								player.setDeltaMovement(player.getDeltaMovement().multiply(1.0D, 0.0D, 1.0D));
 							}
 						}
 					}
 				}
-				
-				if(stack.getItem() == Items.PAPER && Config.GLIDE_WITH_PAPER)
+
+				if (stack.getItem() == Items.PAPER && Config.GLIDE_WITH_PAPER)
 				{
-					if(!player.onGround)
+					if (!player.isOnGround())
 					{
-						player.jumpMovementFactor = 0.02F * 1.75F;
+						player.flyingSpeed = 0.02F * 1.75F;
 						player.fallDistance = 0;
-						
-						if(player.motionY < 0D)
+
+						if (player.getDeltaMovement().y < 0D)
 						{
-							player.motionY *= 0.6D;
+							player.setDeltaMovement(player.getDeltaMovement().multiply(1.0D, 0.6D, 1.0D));
 						}
-						
-						if(player.isSneaking())
+
+						if (player.isShiftKeyDown())
 						{
-							player.jumpMovementFactor *= 3.50F;
+							player.flyingSpeed *= 3.50F;
 						}
-						
-						for(double blockY = player.posY; !player.isSneaking() &&
-								((world.getBlockState(new BlockPos(player.posX, blockY, player.posZ)).getBlock() == Blocks.AIR) ||
-								(world.getBlockState(new BlockPos(player.posX, blockY, player.posZ)).getBlock() == Blocks.LAVA) ||
-								(world.getBlockState(new BlockPos(player.posX, blockY, player.posZ)).getBlock() == Blocks.FIRE) ||
-								(world.getBlockState(new BlockPos(player.posX, blockY, player.posZ)).getBlock() == Blocks.LIT_FURNACE) ||
-								(world.getBlockState(new BlockPos(player.posX, blockY, player.posZ)).getBlock() == Blocks.MAGMA)) &&
-								player.posY - blockY < 25;
-								blockY--)
+
+						for (double blockY = player.getY(); !player.isShiftKeyDown() &&
+								((world.getBlockState(new BlockPos(player.getX(), blockY, player.getZ())).getBlock() == Blocks.AIR) ||
+										(world.getBlockState(new BlockPos(player.getX(), blockY, player.getZ())).getBlock() == Blocks.LAVA) ||
+										(world.getBlockState(new BlockPos(player.getX(), blockY, player.getZ())).getBlock() == Blocks.WATER)); blockY--)
 						{
-							if((world.getBlockState(new BlockPos(player.posX, blockY, player.posZ)).getBlock() == Blocks.LAVA) ||
-									(world.getBlockState(new BlockPos(player.posX, blockY, player.posZ)).getBlock() == Blocks.FIRE) ||
-									(world.getBlockState(new BlockPos(player.posX, blockY, player.posZ)).getBlock() == Blocks.LIT_FURNACE) ||
-									(world.getBlockState(new BlockPos(player.posX, blockY, player.posZ)).getBlock() == Blocks.MAGMA) &&
-									Config.HOT_BLOCKS_GIVE_LIFT)
-							{
-								player.motionY += MathHelper.clamp(0.07D, Double.MIN_VALUE, 0.1D);
-							}
+							player.flyingSpeed *= 0.50F;
+							player.setDeltaMovement(player.getDeltaMovement().add(0.0D, 0.25D, 0.0D));
 						}
 					}
 				}
 			}
 		}
-	}
-	
-	@SubscribeEvent
-	public void onEntityInteract(EntityInteract event)
-	{
-		if(event.getTarget() instanceof EntityLivingBase)
+
+		if (player.getBbHeight() >= 2.25F && Config.GIANTS_BREAK_BLOCKS)
 		{
-			EntityLivingBase target = (EntityLivingBase) event.getTarget();
-			EntityPlayer player = event.getEntityPlayer();
-			
-			if(target.height / 2 >= player.height && Config.RIDE_BIG_ENTITIES)
+			for (BlockPos pos : BlockPos.betweenClosed(player.getBoundingBox().inflate(0.25D)))
 			{
-				for(ItemStack stack : player.getHeldEquipment())
+				BlockState state = world.getBlockState(pos);
+				Block block = state.getBlock();
+
+				if (!(block instanceof AirBlock))
 				{
-					if(stack.getItem() == Items.STRING)
-					{
-						player.startRiding(target);
-					}
-				}
-			}
-			
-			if(target.height * 2 <= player.height && Config.PICKUP_SMALL_ENTITIES)
-			{
-				target.startRiding(player);
-			}
-			
-			if(player.getHeldItemMainhand().isEmpty() && player.isBeingRidden() && player.isSneaking())
-			{
-				for(Entity entities : player.getPassengers())
-				{
-					if(entities instanceof EntityLivingBase)
-					{
-						entities.dismountRidingEntity();
-					}
+					world.destroyBlock(pos, true);
 				}
 			}
 		}
 	}
-	
+
 	@SubscribeEvent
 	public void onEntityJump(LivingJumpEvent event)
 	{
-		if(event.getEntityLiving() instanceof EntityPlayer && Config.JUMP_MODIFIER)
+		LivingEntity entity = event.getEntityLiving();
+		ISizeCap cap = SizeCapPro.get(entity);
+
+		if (cap.isResized())
 		{
-			EntityPlayer player = (EntityPlayer) event.getEntityLiving();
-			float jumpHeight = (player.height / 1.8F);
-			
-			jumpHeight = MathHelper.clamp(jumpHeight, 0.65F, jumpHeight);
-			player.motionY *= jumpHeight;
-			
-			if(player.isSneaking() || player.isSprinting())
-			{
-				if(player.height < 1.8F) player.motionY = 0.42F;
-			}
+			float f = entity.getBbHeight() / 1.8F;
+			entity.setDeltaMovement(entity.getDeltaMovement().multiply(1.0D, f, 1.0D));
 		}
 	}
-	
+
 	@SubscribeEvent
-	public void onHarvest(BreakSpeed event)
+	public void onEntityAttacked(AttackEntityEvent event)
 	{
-		EntityPlayer player = event.getEntityPlayer();
-		
-		if(Config.HARVEST_MODIFIER) event.setNewSpeed(event.getOriginalSpeed() * (player.height / 1.8F));
-	}
-	
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void onFOVChange(FOVUpdateEvent event)
-	{
-		if(event.getEntity() != null)
+		if (event.getTarget() instanceof LivingEntity)
 		{
-			EntityPlayer player = event.getEntity();
-			GameSettings settings = Minecraft.getMinecraft().gameSettings;
-			PotionEffect speed = player.getActivePotionEffect(MobEffects.SPEED);
-			float fov = settings.fovSetting / settings.fovSetting;
-			
-			if(player.isSprinting())
+			LivingEntity entity = (LivingEntity) event.getTarget();
+			ISizeCap cap = SizeCapPro.get(entity);
+
+			if (cap.isResized())
 			{
-				event.setNewfov(speed != null ? fov + ((0.1F * (speed.getAmplifier() + 1)) + 0.15F) : fov + 0.1F);
-			}
-			else
-			{
-				event.setNewfov(speed != null ? fov + (0.1F * (speed.getAmplifier() + 1)) : fov);
-			}
-		}
-	}
-	
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void onCameraSetup(CameraSetup event)
-	{
-		EntityPlayer player = Minecraft.getMinecraft().player;
-		float scale = player.height / 1.8F;
-		
-		if(Minecraft.getMinecraft().gameSettings.thirdPersonView == 1)
-		{
-			if(player.height > 1.8F) GL11.glTranslatef(0, 0, -scale * 2);
-		}
-		
-		if(Minecraft.getMinecraft().gameSettings.thirdPersonView == 2)
-		{
-			if(player.height > 1.8F) GL11.glTranslatef(0, 0, scale * 2);
-		}
-	}
-	
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void onEntityRenderPre(RenderLivingEvent.Pre event)
-	{
-		if(Config.DO_ADJUSTED_RENDER)
-		{
-			final EntityLivingBase entity = event.getEntity();
-			
-			if(entity.hasCapability(SizeCapPro.sizeCapability, null))
-			{
-				final ISizeCap cap = entity.getCapability(SizeCapPro.sizeCapability, null);
-				
-				if(cap.getTrans() == true)
+				if (event.getTarget() instanceof Player)
 				{
-					float scale = entity.height / cap.getDefaultHeight();
-					
-					if(scale < 0.4F)
-					{
-						GlStateManager.pushMatrix();
-						GlStateManager.scale(scale * 2.5F, 1, scale * 2.5F);
-						GlStateManager.translate(event.getX() / scale * 2.5F - event.getX(),
-								event.getY() / scale * 2.5F - event.getY(), event.getZ() / scale * 2.5F - event.getZ());
-					}
+					Player player = (Player) event.getTarget();
+					player.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue((player.getBbHeight() / 1.8F) * player.getAttribute(Attributes.ATTACK_DAMAGE).getBaseValue());
 				}
-			}
-		}
-	}
-	
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void onLivingRenderPost(RenderLivingEvent.Post event)
-	{
-		if(Config.DO_ADJUSTED_RENDER)
-		{
-			final EntityLivingBase entity = event.getEntity();
-			
-			if(entity.hasCapability(SizeCapPro.sizeCapability, null))
-			{
-				final ISizeCap cap = entity.getCapability(SizeCapPro.sizeCapability, null);
-				
-				if(cap.getTrans() == true)
+				else
 				{
-					float scale = entity.height / cap.getDefaultHeight();
-					
-					if(scale < 0.4F)
-					{
-						GlStateManager.popMatrix();
-					}
+					entity.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue((entity.getBbHeight() / 1.8F) * entity.getAttribute(Attributes.ATTACK_DAMAGE).getBaseValue());
 				}
 			}
 		}
