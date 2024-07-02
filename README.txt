@@ -5,3 +5,5 @@ ArtemisLibのフォークリポジトリはありますが、そちらの方は�
 ⇑Japanese⇑
 
 ⇓English⇓
+This is an attempt to make Gulliver-Reborn, which has not been updated and is stuck at MC version 1.12.2, usable with 1.18.2.
+I plan to eventually change the name as well, but since this is my first time modifying and creating a mod, I'm keeping the original name until I'm more or less done (I've already changed some parts of the code)
